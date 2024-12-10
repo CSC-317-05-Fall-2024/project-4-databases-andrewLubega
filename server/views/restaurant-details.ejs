@@ -1,0 +1,21 @@
+<!-- views/restaurant-details.ejs -->
+<!DOCTYPE html>
+
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= restaurant.name %> - Restaurant Details</title>
+    <link rel="stylesheet" href="/css/restaurant-details-styles.css"> <!-- Linking the CSS -->
+</head>
+<body>
+    <div class="restaurant-details">
+        <h1><%= restaurant.name %></h1>
+        <p><strong>Phone:</strong> <%= restaurant.phone %></p>
+        <p><strong>Address:</strong> <%= restaurant.address %></p>
+        <img src="<%= restaurant.photo %>" alt="<%= restaurant.name %>">
+        <a href="/restaurants">Back to Restaurant List</a>
+    </div>
+</body>
+</html>

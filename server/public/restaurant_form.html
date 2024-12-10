@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveler</title>
+    <script defer src="scripts/header.js"></script>
+    <script defer src="scripts/restaurantSubmit.js"></script> <!-- Point to your JS file for form handling -->
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="home-container">
+        <header id="header"></header>
+
+        <nav id="nav">
+            <!-- Navigation links -->
+        </nav>
+
+        <div class="home-content">
+            <h1>New Restaurant Form</h1>
+            <section>
+                <form id="restaurant-form">
+                    <label for="resName">Restaurant Name:</label><br>
+                    <input type="text" id="resName" name="name" required><br>
+
+                    <label for="resPhoneNum">Phone Number:</label><br>
+                    <input type="text" id="resPhoneNum" name="phone" required><br>
+
+                    <label for="resAddy">Address:</label><br>
+                    <input type="text" id="resAddy" name="address" required><br>
+
+                    <label for="resPhoto">Photo URL:</label><br>
+                    <input type="url" id="resPhoto" name="photo" required><br>
+
+                    <div>
+                        <button type="submit" id="submit_button">Add Restaurant</button><br>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <footer id="footer">
+            <!-- Footer content -->
+        </footer>
+    </div>  
+</body>
+</html>
