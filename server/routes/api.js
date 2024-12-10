@@ -1,47 +1,58 @@
 // routes/api.js
 import express from 'express';
-import { getRestaurants, getRestaurant, createRestaurant, deleteRestaurant } from '../data/restaurants.js'; // Import the functions
+import { createRestaurant, getRestaurants, getRestaurant, deleteRestaurant, getReviewsForRestaurant } from '../data/restaurants.js'; // Import functions
 
 const router = express.Router();
 
-// Get a list of all restaurants
-router.get('/restaurants', (req, res) => {
-    res.json(getRestaurants()); // Serve all restaurants as JSON
-});
-
-// Get a specific restaurant by ID
-router.get('/restaurants/:id', (req, res) => {
-    const restaurantId = parseInt(req.params.id, 10);
-    const restaurant = getRestaurant(restaurantId); // Fetch the restaurant by ID
-
-    if (restaurant) {
-        res.json(restaurant); // Return the restaurant details as JSON
-    } else {
-        res.status(404).json({ message: 'Restaurant not found' }); // Return an error if not found
-    }
-});
-
-// POST endpoint to create a new restaurant
-router.post('/restaurants', express.json(), (req, res) => {
-    const newRestaurant = req.body; // Assuming the body is JSON
-    if (newRestaurant && newRestaurant.name && newRestaurant.phone && newRestaurant.address && newRestaurant.photo) {
-        const createdRestaurant = createRestaurant(newRestaurant); // Backend assigns ID
-        res.status(201).json(createdRestaurant);
-    } else {
-        res.status(400).json({ message: 'Invalid restaurant data' });
-    }
-});
-
-
-// Delete a restaurant by ID
-router.delete('/restaurants/:id', (req, res) => {
-    const id = parseInt(req.params.id, 10);
+// Get all restaurants
+router.get('/restaurants', async (req, res) => {
     try {
-        const deletedRestaurant = deleteRestaurant(id); // Delete the restaurant
-        res.status(200).json({ message: 'Restaurant deleted successfully', deletedRestaurant });
-    } catch (err) {
-        res.status(404).json({ message: err.message }); // Handle the case where the restaurant is not found
+        const restaurants = await getRestaurants();
+        res.render('restaurants', { restaurants: restaurants });
+    } catch (error) {
+        res.status(500).send('Error fetching restaurants');
+    }
+});
+
+// Get a single restaurant by ID
+router.get('/restaurants/:id', async (req, res) => {
+    const restaurantId = parseInt(req.params.id, 10);
+    try {
+        const restaurant = await getRestaurant(restaurantId);
+        if (restaurant) {
+            res.render('restaurant-details', { restaurant: restaurant });
+        } else {
+            res.status(404).send('Restaurant not found');
+        }
+    } catch (error) {
+        res.status(500).send('Error fetching restaurant details');
+    }
+});
+
+// Create a new restaurant (form submission)
+router.post('/restaurants', async (req, res) => {
+    const { name, phone, address, photo } = req.body;
+    const newRestaurant = { name, phone, address, photo };
+
+    try {
+        const newRestaurantId = await createRestaurant(newRestaurant);
+        res.redirect(`/restaurants/${newRestaurantId}`);  // Redirect to the newly created restaurant's page
+    } catch (error) {
+        res.status(500).send('Error creating restaurant');
+    }
+});
+
+// Delete a restaurant
+router.delete('/restaurants/:id', async (req, res) => {
+    const restaurantId = parseInt(req.params.id, 10);
+
+    try {
+        const deletedRestaurant = await deleteRestaurant(restaurantId);
+        res.status(200).json({ message: 'Restaurant deleted successfully', restaurant: deletedRestaurant });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting restaurant' });
     }
 });
 
 export { router as backendRouter };
+

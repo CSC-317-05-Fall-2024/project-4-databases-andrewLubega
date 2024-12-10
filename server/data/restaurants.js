@@ -1,65 +1,65 @@
-// Fill this in
-let restaurantData = [
-    {
-        id: 0,
-        name: "My Restaurant",
-        phone: "(415) 555-5555",
-        address: "1600 Holloway Ave, San Francisco, CA 94132",
-        photo: "https://picsum.photos/150/150" 
-    },
-    {
-        id: 1,
-        name: "My Restaurant",
-        phone: "(415) 555-5555",
-        address: "1600 Holloway Ave, San Francisco, CA 94132",
-        photo: "https://picsum.photos/150/150" 
-    },
-    {
-        id: 2,
-        name: "My Restaurant",
-        phone: "(415) 555-5555",
-        address: "1600 Holloway Ave, San Francisco, CA 94132",
-        photo: "https://picsum.photos/150/150" 
-    },
-];
+import { pool } from './database.js'; // Import the database connection
 
-let lastId = restaurantData.length;
-
-const getNextId = () => {
-    lastId += 1;
-    return lastId;
-}
-
-// Get a list of restaurants
-const getRestaurants = () => {
-    return restaurantData;
+// Get all restaurants
+const getRestaurants = async () => {
+    try {
+        const result = await pool.query('SELECT * FROM restaurants');
+        return result.rows; // Returns an array of restaurants
+    } catch (error) {
+        console.error('Error fetching restaurants:', error);
+        throw error;
+    }
 };
 
-
-// Get a restaurant by id
-const getRestaurant = (id) => {
-    return restaurantData.find(restaurantData => restaurantData.id === id);
+// Get a restaurant by ID
+const getRestaurant = async (id) => {
+    try {
+        const result = await pool.query('SELECT * FROM restaurants WHERE id = $1', [id]);
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error fetching restaurant:', error);
+        throw error;
+    }
 };
 
 // Create a new restaurant entry
-const createRestaurant = (data) => {
-    const newRestaurant = {
-        id: getNextId(),  // Ensure the ID is generated correctly
-        ...data,
-    };
-    restaurantData.push(newRestaurant);
-    return newRestaurant;
-};
-
-
-// Delete a restaurant by id
-const deleteRestaurant = (id) => {
-    const restaurantToDelete = restaurantData.find(restaurantData => restaurantData.id === id);
-    if(!restaurantToDelete){
-        throw Error(`Restaurant ${id} not found!`);
+const createRestaurant = async (newRestaurant) => {
+    const { name, phone, address, photo } = newRestaurant;
+    try {
+        const result = await pool.query(
+            'INSERT INTO restaurants (name, phone, address, photo) VALUES ($1, $2, $3, $4) RETURNING id',
+            [name, phone, address, photo]
+        );
+        return result.rows[0].id;
+    } catch (error) {
+        console.error('Error creating restaurant:', error);
+        throw error;
     }
-    restaurantData = restaurantData.filter(restaurant => restaurant.id !== id);
-    return restaurantToDelete;
 };
 
-export { getRestaurants, getRestaurant, createRestaurant, deleteRestaurant };
+// Delete a restaurant by ID
+const deleteRestaurant = async (id) => {
+    try {
+        const result = await pool.query('DELETE FROM restaurants WHERE id = $1 RETURNING *', [id]);
+        if (result.rows.length === 0) {
+            throw new Error('Restaurant not found');
+        }
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error deleting restaurant:', error);
+        throw error;
+    }
+};
+
+// gets reviews for restaurant
+const getReviewsForRestaurant = async (id) => {
+    try {
+        const result = await pool.query('SELECT * FROM reviews WHERE restaurant_id = $1', [id]);
+        return result.rows; // Returns an array of reviews
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        throw error;
+    }
+};
+
+export { getRestaurants, getRestaurant, createRestaurant, deleteRestaurant, getReviewsForRestaurant };
