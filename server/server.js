@@ -6,7 +6,6 @@ import {backendRouter} from "./routes/api.js"
 import { pool } from './config/database.js';
 import { getRestaurant, getReviewsForRestaurant } from './data/restaurants.js';
 
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -23,6 +22,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Mount the API router at the /api prefix
 app.use('/api', backendRouter);
 
+//middleware to handle errors centrall
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something went wrong!');
+});
+
+// Centralized error handler
+app.use((err, req, res, next) => {
+    console.error('Unhandled Error:', err);
+    res.status(err.status || 500).send(err.message || 'Server Error');
+});
+
+
 //index.html route 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -36,13 +48,6 @@ app.get('/attractions', (req,res)=>{
 // restaurant form route
 app.get('/form', (req,res)=>{
     res.sendFile(path.join(__dirname, 'public', 'restaurant_form.html'));
-});
-
-
-
-// Serve restaurant data as JSON via an API endpoint
-app.get('/api/restaurants', (req, res) => {
-    res.json(getRestaurants()); // Serve the restaurant data as JSON
 });
 
 // Delete restaurant data
@@ -65,11 +70,11 @@ app.delete('/api/restaurants/:id', async (req, res) => {
 //restaurants route rendering ejs template with restaurantData
 app.get('/restaurants', async (req, res) => {
     try {
-        const restaurants = await getRestaurants(); // Await the async function
-        res.render('restaurants', { restaurants });
+        const restaurants = await getRestaurants(); // Fetch restaurants data
+        res.json(restaurants); // Respond with JSON data
     } catch (error) {
         console.error('Error fetching restaurants:', error);
-        res.status(500).send('Server Error'); // Return a 500 error with a message
+        res.status(500).send('Server Error'); // Return a 500 error
     }
 });
 
