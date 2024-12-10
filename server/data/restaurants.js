@@ -1,4 +1,5 @@
-import { pool } from './database.js'; // Import the database connection
+import { pool } from '../config/database.js';
+
 
 // Get all restaurants
 const getRestaurants = async () => {

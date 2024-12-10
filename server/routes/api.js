@@ -19,8 +19,13 @@ router.get('/restaurants/:id', async (req, res) => {
     const restaurantId = parseInt(req.params.id, 10);
     try {
         const restaurant = await getRestaurant(restaurantId);
+        const reviews = await getReviewsForRestaurant(restaurantId); // Fetch reviews for the restaurant
+        
         if (restaurant) {
-            res.render('restaurant-details', { restaurant: restaurant });
+            res.render('restaurant-details', { 
+                restaurant: restaurant, 
+                reviews: reviews // Pass reviews to the template
+            });
         } else {
             res.status(404).send('Restaurant not found');
         }

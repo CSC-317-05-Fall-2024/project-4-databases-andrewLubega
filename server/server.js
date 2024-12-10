@@ -3,6 +3,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import {getRestaurants} from "./data/restaurants.js";
 import {backendRouter} from "./routes/api.js"
+import { pool } from './config/database.js';
+import { getRestaurant, getReviewsForRestaurant } from './data/restaurants.js';
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,34 +46,55 @@ app.get('/api/restaurants', (req, res) => {
 });
 
 // Delete restaurant data
-app.delete('/data/restaurantData/:id', (req, res) => {
-    const id = parseInt(req.params.id, 10);
-    const index = restaurantData.findIndex(restaurant => restaurant.id === id);
-    if (index !== -1) {
-        restaurantData.splice(index, 1);
-        res.status(200).json({ message: 'Restaurant deleted successfully' });
-    } else {
-        res.status(404).json({ message: 'Restaurant not found' });
+app.delete('/api/restaurants/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const result = await pool.query('DELETE FROM restaurants WHERE id = $1 RETURNING *', [id]);
+        if (result.rows.length > 0) {
+            res.status(200).json({ message: 'Restaurant deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Restaurant not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting restaurant:', error);
+        res.status(500).send('Server Error');
     }
 });
+
 
 //restaurants route rendering ejs template with restaurantData
-app.get('/restaurants', (req, res) => {
-    const restaruants = getRestaurants();
-    res.render('restaurants', { restaurants: restaruants });
-});
-
-// Get a restaurant by ID and render the details page
-app.get('/restaurants/:id', (req, res) => {
-    const restaurantId = parseInt(req.params.id, 10); // Get the ID from the URL
-    const restaurant = getRestaurant(restaurantId); // Fetch the restaurant data by ID
-    
-    if (restaurant) {
-        res.render('restaurant-details', { restaurant: restaurant }); // Pass the restaurant data to the view
-    } else {
-        res.status(404).send('Restaurant not found'); // If no restaurant is found, send an error
+app.get('/restaurants', async (req, res) => {
+    try {
+        const restaurants = await getRestaurants(); // Await the async function
+        res.render('restaurants', { restaurants });
+    } catch (error) {
+        console.error('Error fetching restaurants:', error);
+        res.status(500).send('Server Error'); // Return a 500 error with a message
     }
 });
+
+
+
+// Get a restaurant by ID and render the details page
+app.get('/restaurants/:id', async (req, res) => {
+    const restaurantId = parseInt(req.params.id, 10);
+    try {
+        const restaurant = await getRestaurant(restaurantId);
+        const reviews = await getReviewsForRestaurant(restaurantId);
+
+        if (restaurant) {
+            res.render('restaurant-details', { restaurant, reviews });
+        } else {
+            res.status(404).send('Restaurant not found');
+        }
+    } catch (error) {
+        console.error('Error fetching restaurant details:', error);
+        res.status(500).send('Server Error'); // Logs the error in the console and sends a 500 response
+    }
+});
+
+
+
 
 
 // Start the server

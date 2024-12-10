@@ -1,14 +1,16 @@
-<!-- views/restaurant-details.ejs -->
 <!DOCTYPE html>
-
 <html lang="en">
-    
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= restaurant.name %> - Restaurant Details</title>
-    <link rel="stylesheet" href="/css/restaurant-details-styles.css"> <!-- Linking the CSS -->
+    <link rel="stylesheet" href="/restaurant-details-styles.css">
+    <script defer src="/scripts/header.js"></script>
+    <script defer type="module" src="/scripts/restaurantCards.js"></script>
+
 </head>
+
 <body>
     <div class="restaurant-details">
         <h1><%= restaurant.name %></h1>
@@ -16,6 +18,23 @@
         <p><strong>Address:</strong> <%= restaurant.address %></p>
         <img src="<%= restaurant.photo %>" alt="<%= restaurant.name %>">
         <a href="/restaurants">Back to Restaurant List</a>
+
+        <!-- Reviews Section -->
+        <h2>Reviews</h2>
+        <% if (reviews && reviews.length > 0) { %> <!-- If there are reviews -->
+            <ul>
+                <% reviews.forEach(review => { %>
+                    <li>
+                        <strong>Rating: <%= review.rating %> / 5</strong><br>
+                        <p><%= review.content %></p>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } else { %> <!-- If no reviews exist -->
+            <p>No reviews yet for this restaurant.</p>
+        <% } %>
+
     </div>
 </body>
+
 </html>
