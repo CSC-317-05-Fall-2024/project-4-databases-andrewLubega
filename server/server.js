@@ -71,7 +71,8 @@ app.delete('/api/restaurants/:id', async (req, res) => {
 app.get('/restaurants', async (req, res) => {
     try {
         const restaurants = await getRestaurants(); // Fetch restaurants data
-        res.json(restaurants); // Respond with JSON data
+        console.log(restaurants);
+        res.render("restaurants", {restaurants}); // Respond with JSON data
     } catch (error) {
         console.error('Error fetching restaurants:', error);
         res.status(500).send('Server Error'); // Return a 500 error
