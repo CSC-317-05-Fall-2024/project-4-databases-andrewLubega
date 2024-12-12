@@ -19,20 +19,26 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+
+// //middleware to handle errors centrall
+// app.use((err, req, res, next) => {
+//     console.error(err.stack);
+//     res.status(500).send('Something went wrong!');
+// });
+
+app.use(express.urlencoded({ extended: true })); // Parse form submissions
+app.use(express.json()); // Parse JSON request bodies
+
 // Mount the API router at the /api prefix
 app.use('/api', backendRouter);
-
-//middleware to handle errors centrall
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something went wrong!');
-});
 
 // Centralized error handler
 app.use((err, req, res, next) => {
     console.error('Unhandled Error:', err);
     res.status(err.status || 500).send(err.message || 'Server Error');
 });
+
 
 
 //index.html route 

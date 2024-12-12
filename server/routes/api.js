@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/restaurants', async (req, res) => {
     try {
         const restaurants = await getRestaurants();
-        res.render('restaurants', { restaurants: restaurants });
+        res.json( restaurants );
     } catch (error) {
         res.status(500).send('Error fetching restaurants');
     }
@@ -36,16 +36,19 @@ router.get('/restaurants/:id', async (req, res) => {
 
 // Create a new restaurant (form submission)
 router.post('/restaurants', async (req, res) => {
+    console.log('Received form data:', req.body);
     const { name, phone, address, photo } = req.body;
-    const newRestaurant = { name, phone, address, photo };
 
     try {
-        const newRestaurantId = await createRestaurant(newRestaurant);
-        res.redirect(`/restaurants/${newRestaurantId}`);  // Redirect to the newly created restaurant's page
+        const newRestaurantId = await createRestaurant({ name, phone, address, photo });
+        console.log('Created new restaurant with ID:', newRestaurantId);
+        res.redirect(`/restaurants/${newRestaurantId}`);
     } catch (error) {
+        console.error('Error creating restaurant:', error);
         res.status(500).send('Error creating restaurant');
     }
 });
+
 
 // Delete a restaurant
 router.delete('/restaurants/:id', async (req, res) => {

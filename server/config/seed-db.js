@@ -27,7 +27,7 @@ const createTables = async () => {
                 name VARCHAR(255) NOT NULL,
                 phone VARCHAR(50),
                 address TEXT,
-                photo VARCHAR(255)
+                photo TEXT
             );
         `;
         await pool.query(createRestaurantsTableQuery);

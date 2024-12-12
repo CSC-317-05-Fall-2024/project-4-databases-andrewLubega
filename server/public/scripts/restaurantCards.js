@@ -18,15 +18,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 restaurantDiv.innerHTML = `
                     <img src="${restaurant.photo}" alt="${restaurant.name}">
                     <h4>${restaurant.name}</h4>
-                    <p>${restaurant.address}</p>
+                    <p>${restaurant.address}</p> 
                     <p>${restaurant.phone}</p>
                     <button class="delete" id="delete-${restaurant.id}">delete</button>
                 `;
-                grid.appendChild(restaurantDiv);
-            });
 
-            // Attach delete handlers
-            grid.addEventListener('click', function (event) {
+                const card = restaurantDiv.querySelector("img");
+
+                card.addEventListener('click', function(event){
+                    window.location.href = `/restaurants/${restaurant.id}`; // Ensure this is a full page refresh
+                });
+
+                const button = restaurantDiv.querySelector('.delete');
+
+                button.addEventListener('click', function (event) {
                 if (event.target && event.target.classList.contains('delete')) {
                     const button = event.target;
                     const restaurantId = button.id.split('-')[1];
@@ -41,6 +46,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         .catch(err => console.error('Error:', err));
                 }
             });
+
+                grid.appendChild(restaurantDiv);
+            });
+
+            // Attach delete handlers
+            
         })
         .catch(err => console.error('Error fetching restaurant data:', err));
 });
